@@ -6,40 +6,40 @@ import { generateToken } from "../utils/token";
 import prisma from "../utils/prisma";
 
 const authController = {
-	async login(req: Request, res: Response, next: NextFunction) {
-		try {
-			const userDetails: User = req.body;
-			const user = await prisma.user.findFirst({
-				where: {
-					email: userDetails.email,
-				},
-			});
+    async login(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userDetails: User = req.body;
+            const user = await prisma.user.findFirst({
+                where: {
+                    email: userDetails.email,
+                },
+            });
 
-			if (!user) {
-				return res.status(404).json({ error: "Email not found" });
-			}
+            if (!user) {
+                return res.status(404).json({ error: "Email not found" });
+            }
 
-			const isValid = comparePass(userDetails.password, user.password);
+            const isValid = comparePass(userDetails.password, user.password);
 
-			if (!isValid) {
-				return res.status(400).json({ error: "Invalid password" });
-			}
+            if (!isValid) {
+                return res.status(400).json({ error: "Invalid password" });
+            }
 
-			const token = generateToken({ id: user.id });
+            const token = generateToken({ id: user.id });
 
-			res.cookie("token", token, {
-				httpOnly: true,
-			})
-				.status(200)
-				.json({ message: "Logged in successfully" });
-		} catch (error) {
-			if (error instanceof zod.ZodError) {
-				res.status(400).json({ error: error.errors });
-			}
+            res.cookie("token", token, {
+                httpOnly: true,
+            })
+                .status(200)
+                .json({ message: "Logged in successfully" });
+        } catch (error) {
+            if (error instanceof zod.ZodError) {
+                res.status(400).json({ error: error.errors });
+            }
 
-			next(error);
-		}
-	},
+            next(error);
+        }
+    },
 };
 
 export { authController };

@@ -5,45 +5,45 @@ import { hash } from "../utils/crypto";
 import prisma from "../utils/prisma";
 
 const userController = {
-	async makeUser(req: Request, res: Response, next: NextFunction) {
-		try {
-			// validating user details here
-			const userDetails: User = req.body;
+    async makeUser(req: Request, res: Response, next: NextFunction) {
+        try {
+            // validating user details here
+            const userDetails: User = req.body;
 
-			// check if the email already exists
-			const existingUser = await prisma.user.findFirst({
-				where: {
-					email: userDetails.email,
-				},
-			});
+            // check if the email already exists
+            const existingUser = await prisma.user.findFirst({
+                where: {
+                    email: userDetails.email,
+                },
+            });
 
-			if (existingUser) {
-				return res.status(400).json({ error: "Email already exists" });
-			}
+            if (existingUser) {
+                return res.status(400).json({ error: "Email already exists" });
+            }
 
-			// Create a new user
+            // Create a new user
 
-			const hashedPassword: string = hash(userDetails.password);
+            const hashedPassword: string = hash(userDetails.password);
 
-			const user = await prisma.user.create({
-				data: {
-					email: userDetails.email,
-					password: hashedPassword,
-					name: userDetails.name,
-				},
-			});
+            const user = await prisma.user.create({
+                data: {
+                    email: userDetails.email,
+                    password: hashedPassword,
+                    name: userDetails.name,
+                },
+            });
 
-			const userOutput = { ...user, password: undefined };
+            const userOutput = { ...user, password: undefined };
 
-			res.json(userOutput);
-		} catch (error) {
-			// If the error is a zod error
-			if (error instanceof zod.ZodError) {
-				res.status(400).json({ error: error.errors });
-			}
-			next(error);
-		}
-	},
+            res.json(userOutput);
+        } catch (error) {
+            // If the error is a zod error
+            if (error instanceof zod.ZodError) {
+                res.status(400).json({ error: error.errors });
+            }
+            next(error);
+        }
+    },
 };
 
 export { userController };
