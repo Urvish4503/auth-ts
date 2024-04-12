@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { z as zod } from "zod";
-import { User } from "../models/user.model";
+import { User } from "../schema/user.schema";
 import { comparePass } from "../utils/crypto";
 import { generateToken } from "../utils/token";
 import prisma from "../utils/prisma";
@@ -8,7 +8,7 @@ import prisma from "../utils/prisma";
 const authController = {
     async login(req: Request, res: Response, next: NextFunction) {
         try {
-            const userDetails: User = req.body;
+            const userDetails = User.safeParse(req.body);
             const user = await prisma.user.findFirst({
                 where: {
                     email: userDetails.email,
