@@ -2,23 +2,29 @@
     "name": "auth-ts",
     "version": "1.0.0",
     "main": "index.js",
-    "repository": "git@github.com:UrvishP4503/auth-ts.git",
-    "author": "Urvish Patel <92674497+UrvishP4503@users.noreply.github.com>",
+    "repository": "git@github.com:Urvish4503/auth-ts.git",
+    "author": "Urvish Patel <92674497+Urvish4503@users.noreply.github.com>",
     "license": "MIT",
     "private": false,
     "scripts": {
-        "dev": "nodemon dist/index.js"
+        "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\"",
+        "db:introspect": "drizzle-kit introspect:pg --config=./src/db/drizzle.config.ts",
+        "db:generate": "drizzle-kit generate:pg --schema src/db/schema.ts --out ./drizzle",
+        "db:migrate": "tsx ./src/db/migrate.ts"
     },
     "devDependencies": {
         "@types/express": "^4.17.21",
         "@typescript-eslint/eslint-plugin": "^7.0.2",
         "@typescript-eslint/parser": "^7.0.2",
+        "concurrently": "^8.2.2",
+        "dotenv": "^16.4.5",
         "drizzle-kit": "^0.20.14",
         "eslint": "^8.56.0",
         "eslint-config-prettier": "^9.1.0",
         "nodemon": "^3.0.3",
         "prettier": "3.2.5",
         "ts-node": "^10.9.2",
+        "tsx": "^4.7.2",
         "typescript": "^5.3.3"
     },
     "dependencies": {
@@ -26,10 +32,10 @@
         "@types/cookie-parser": "^1.4.6",
         "@types/jsonwebtoken": "^9.0.5",
         "cookie-parser": "^1.4.6",
-        "dotenv": "^16.4.4",
         "drizzle-orm": "^0.30.8",
         "express": "^4.18.2",
         "jsonwebtoken": "^9.0.2",
+        "postgres": "^3.4.4",
         "zod": "^3.22.4"
     }
 }

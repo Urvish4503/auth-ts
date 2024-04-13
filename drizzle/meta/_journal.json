@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1713006242445,
+      "tag": "0000_ancient_crusher_hogan",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1713006344577,
+      "tag": "0001_lethal_siren",
+      "breakpoints": true
+    }
+  ]
+}
