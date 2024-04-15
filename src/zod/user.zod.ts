@@ -6,4 +6,6 @@ const userSchema = zod.object({
     name: zod.optional(zod.string().min(3)),
 });
 
-export { userSchema as User };
+type User = zod.infer<typeof userSchema>;
+
+export { userSchema, User };
