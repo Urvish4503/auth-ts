@@ -1,23 +1,32 @@
 import { Request, Response, NextFunction } from "express";
 import { z as zod } from "zod";
-import { User } from "../schema/user.schema";
+import { User, userSchema } from "../zod/user.zod";
 import { hash } from "../utils/crypto";
-import prisma from "../utils/prisma";
+import { user } from "../db/schema";
+import db from "../db/index";
+import { eq } from "drizzle-orm";
 
 const userController = {
     async makeUser(req: Request, res: Response, next: NextFunction) {
         try {
             // validating user details here
-            const userDetails = User.safeParse(req.body);
+            const userDetailsOrError = userSchema.safeParse(req.body);
+
+            if (!userDetailsOrError.success) {
+                return res
+                    .status(400)
+                    .json({ error: userDetailsOrError.error.errors });
+            }
+
+            const userDetails: User = userDetailsOrError.data;
 
             // check if the email already exists
-            const existingUser = await prisma.user.findFirst({
-                where: {
-                    email: userDetails.email,
-                },
-            });
+            const existingUser = await db
+                .select()
+                .from(user)
+                .where(eq(user.email, userDetails.email));
 
-            if (existingUser) {
+            if (existingUser.length === 0) {
                 return res.status(400).json({ error: "Email already exists" });
             }
 
@@ -25,15 +34,11 @@ const userController = {
 
             const hashedPassword: string = hash(userDetails.password);
 
-            const user = await prisma.user.create({
-                data: {
-                    email: userDetails.email,
-                    password: hashedPassword,
-                    name: userDetails.name,
-                },
-            });
+            userDetails.password = hashedPassword;
 
-            const userOutput = { ...user, password: undefined };
+            const newUser = await db.insert(user).values(userDetails);
+
+            const userOutput = { ...newUser, password: undefined };
 
             res.json(userOutput);
         } catch (error) {
