@@ -7,5 +7,4 @@ const userSchema = zod.object({
 });
 
 type User = zod.infer<typeof userSchema>;
-
-export { User };
+export { User, userSchema };

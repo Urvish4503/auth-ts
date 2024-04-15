@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { z as zod } from "zod";
-import { User } from "../models/user.model";
+import { User, userSchema } from "../models/user.model";
 import { comparePass } from "../utils/crypto";
 import { generateToken } from "../utils/token";
 import prisma from "../utils/prisma";
@@ -8,7 +8,16 @@ import prisma from "../utils/prisma";
 const authController = {
     async login(req: Request, res: Response, next: NextFunction) {
         try {
-            const userDetails: User = req.body;
+            const userDetailsOrError = userSchema.safeParse(req.body);
+
+            if (!userDetailsOrError.success) {
+                return res
+                    .status(400)
+                    .json({ error: userDetailsOrError.error.issues });
+            }
+
+            const userDetails: User = userDetailsOrError.data;
+
             const user = await prisma.user.findFirst({
                 where: {
                     email: userDetails.email,
@@ -35,9 +44,9 @@ const authController = {
         } catch (error) {
             if (error instanceof zod.ZodError) {
                 res.status(400).json({ error: error.errors });
+            } else {
+                next(error);
             }
-
-            next(error);
         }
     },
 };

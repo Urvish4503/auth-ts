@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { z as zod } from "zod";
-import { User } from "../models/user.model";
+import { User, userSchema } from "../models/user.model";
 import { hash } from "../utils/crypto";
 import prisma from "../utils/prisma";
 
@@ -8,7 +8,15 @@ const userController = {
     async makeUser(req: Request, res: Response, next: NextFunction) {
         try {
             // validating user details here
-            const userDetails: User = req.body;
+            const userDetailsOrError = userSchema.safeParse(req.body);
+
+            if (!userDetailsOrError.success) {
+                return res
+                    .status(400)
+                    .json({ error: userDetailsOrError.error.issues });
+            }
+
+            const userDetails: User = userDetailsOrError.data;
 
             // check if the email already exists
             const existingUser = await prisma.user.findFirst({
